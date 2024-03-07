@@ -62,10 +62,10 @@ message Proto3Optional {
 }
 
 enum Enum {
-  ZERO = 0;
-  ONE = 1;
-  TWO = 2;
-  TEN = 10;
+  ENUM_ZERO = 0;
+  ENUM_ONE = 1;
+  ENUM_TWO = 2;
+  ENUM_TEN = 10;
 }
 
 // Message contains enum fields.
@@ -73,10 +73,10 @@ message Enums {
   Enum s_enum = 1;
 
   enum NestedEnum {
-    CERO = 0;
-    UNO = 1;
-    DOS = 2;
-    DIEZ = 10;
+    NESTED_CERO = 0;
+    NESTED_UNO = 1;
+    NESTED_DOS = 2;
+    NESTED_DIEZ = 10;
   }
   NestedEnum s_nested_enum = 3;
 }
