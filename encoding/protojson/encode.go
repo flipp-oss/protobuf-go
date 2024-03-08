@@ -7,6 +7,7 @@ package protojson
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/jpillora/longestcommon"
 
 	"google.golang.org/protobuf/internal/encoding/json"
 	"google.golang.org/protobuf/internal/encoding/messageset"
@@ -64,6 +65,9 @@ type MarshalOptions struct {
 
 	// UseEnumNumbers emits enum values as numbers.
 	UseEnumNumbers bool
+
+	// StripEnumPrefixes removes the common prefixes from enums before emitting.
+	StripEnumPrefixes bool
 
 	// EmitUnpopulated specifies whether to emit unpopulated fields. It does not
 	// emit unpopulated oneof fields or unpopulated extension fields.
@@ -330,7 +334,11 @@ func (e encoder) marshalSingular(val protoreflect.Value, fd protoreflect.FieldDe
 			if e.opts.UseEnumNumbers || desc == nil {
 				e.WriteInt(int64(val.Enum()))
 			} else {
-				e.WriteString(string(desc.Name()))
+				name := string(desc.Name())
+				if e.opts.StripEnumPrefixes {
+					name = stripEnumPrefix(name, fd.Enum())
+				}
+				e.WriteString(name)
 			}
 		}
 
@@ -343,6 +351,20 @@ func (e encoder) marshalSingular(val protoreflect.Value, fd protoreflect.FieldDe
 		panic(fmt.Sprintf("%v has unknown kind: %v", fd.FullName(), kind))
 	}
 	return nil
+}
+
+func enumPrefix(enum protoreflect.EnumDescriptor) string {
+	values := enum.Values()
+	valueNames := make([]string, values.Len())
+	for k := 0; k < values.Len(); k++ {
+		valueNames[k] = string(values.Get(k).Name())
+	}
+	return longestcommon.Prefix(valueNames)
+}
+
+func stripEnumPrefix(enumName string, enum protoreflect.EnumDescriptor) string {
+	prefix := enumPrefix(enum)
+	return enumName[len(prefix):]
 }
 
 // marshalList marshals the given protoreflect.List.

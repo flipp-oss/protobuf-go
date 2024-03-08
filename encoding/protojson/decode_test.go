@@ -165,7 +165,7 @@ func TestUnmarshal(t *testing.T) {
   "optDouble": 0,
   "optString": "",
   "optBytes": "",
-  "optEnum": "ZERO",
+  "optEnum": "ENUM_ZERO",
   "optMessage": {}
 }`,
 		wantMessage: &pb3.Proto3Optional{
@@ -178,7 +178,7 @@ func TestUnmarshal(t *testing.T) {
 			OptDouble:  proto.Float64(0),
 			OptString:  proto.String(""),
 			OptBytes:   []byte{},
-			OptEnum:    pb3.Enum_ZERO.Enum(),
+			OptEnum:    pb3.Enum_ENUM_ZERO.Enum(),
 			OptMessage: &pb3.Nested{},
 		},
 	}, {
@@ -556,12 +556,24 @@ func TestUnmarshal(t *testing.T) {
 		desc:         "proto3 enum",
 		inputMessage: &pb3.Enums{},
 		inputText: `{
+  "sEnum": "ENUM_ONE",
+  "sNestedEnum": "NESTED_DIEZ"
+}`,
+		wantMessage: &pb3.Enums{
+			SEnum:       pb3.Enum_ENUM_ONE,
+			SNestedEnum: pb3.Enums_NESTED_DIEZ,
+		},
+	}, {
+		desc:         "AddEnumPrefixes: proto3 enum",
+		inputMessage: &pb3.Enums{},
+		umo: protojson.UnmarshalOptions{AddEnumPrefixes: true},
+		inputText: `{
   "sEnum": "ONE",
   "sNestedEnum": "DIEZ"
 }`,
 		wantMessage: &pb3.Enums{
-			SEnum:       pb3.Enum_ONE,
-			SNestedEnum: pb3.Enums_DIEZ,
+			SEnum:       pb3.Enum_ENUM_ONE,
+			SNestedEnum: pb3.Enums_NESTED_DIEZ,
 		},
 	}, {
 		desc:         "enum numeric value",
@@ -571,8 +583,8 @@ func TestUnmarshal(t *testing.T) {
   "sNestedEnum": 2
 }`,
 		wantMessage: &pb3.Enums{
-			SEnum:       pb3.Enum_TWO,
-			SNestedEnum: pb3.Enums_DOS,
+			SEnum:       pb3.Enum_ENUM_TWO,
+			SNestedEnum: pb3.Enums_NESTED_DOS,
 		},
 	}, {
 		desc:         "enum unnamed numeric value",
@@ -808,10 +820,10 @@ func TestUnmarshal(t *testing.T) {
 	}, {
 		desc:         "oneof set to enum",
 		inputMessage: &pb3.Oneofs{},
-		inputText:    `{"oneofEnum": "ZERO"}`,
+		inputText:    `{"oneofEnum": "ENUM_ZERO"}`,
 		wantMessage: &pb3.Oneofs{
 			Union: &pb3.Oneofs_OneofEnum{
-				OneofEnum: pb3.Enum_ZERO,
+				OneofEnum: pb3.Enum_ENUM_ZERO,
 			},
 		},
 	}, {
@@ -842,7 +854,7 @@ func TestUnmarshal(t *testing.T) {
 		desc:         "oneof set to more than one field",
 		inputMessage: &pb3.Oneofs{},
 		inputText: `{
-  "oneofEnum": "ZERO",
+  "oneofEnum": "ENUM_ZERO",
   "oneofString": "hello"
 }`,
 		wantErr: `(line 3:3): error parsing "oneofString", oneof pb3.Oneofs.union is already set`,
@@ -850,12 +862,12 @@ func TestUnmarshal(t *testing.T) {
 		desc:         "oneof set to null and value",
 		inputMessage: &pb3.Oneofs{},
 		inputText: `{
-  "oneofEnum": "ZERO",
+  "oneofEnum": "ENUM_ZERO",
   "oneofString": null
 }`,
 		wantMessage: &pb3.Oneofs{
 			Union: &pb3.Oneofs_OneofEnum{
-				OneofEnum: pb3.Enum_ZERO,
+				OneofEnum: pb3.Enum_ENUM_ZERO,
 			},
 		},
 	}, {
@@ -993,15 +1005,15 @@ func TestUnmarshal(t *testing.T) {
 		inputMessage: &pb3.Maps{},
 		inputText: `{
   "uint64ToEnum": {
-    "1" : "ONE",
+    "1" : "ENUM_ONE",
 	"2" : 2,
 	"10": 101
   }
 }`,
 		wantMessage: &pb3.Maps{
 			Uint64ToEnum: map[uint64]pb3.Enum{
-				1:  pb3.Enum_ONE,
-				2:  pb3.Enum_TWO,
+				1:  pb3.Enum_ENUM_ONE,
+				2:  pb3.Enum_ENUM_TWO,
 				10: 101,
 			},
 		},
@@ -2659,7 +2671,7 @@ func TestUnmarshal(t *testing.T) {
 		inputMessage: &pb3.Maps{},
 		inputText: `{
   "uint64ToEnum": {
-    "1" : "ONE",
+    "1" : "ENUM_ONE",
 	"2" : 2,
 	"10": 101,
 	"3": "UNNAMED"
@@ -2668,8 +2680,8 @@ func TestUnmarshal(t *testing.T) {
 		umo: protojson.UnmarshalOptions{DiscardUnknown: true},
 		wantMessage: &pb3.Maps{
 			Uint64ToEnum: map[uint64]pb3.Enum{
-				1:  pb3.Enum_ONE,
-				2:  pb3.Enum_TWO,
+				1:  pb3.Enum_ENUM_ONE,
+				2:  pb3.Enum_ENUM_TWO,
 				10: 101,
 			},
 		},

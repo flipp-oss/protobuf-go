@@ -100,7 +100,7 @@ func TestMarshal(t *testing.T) {
 			OptDouble:  proto.Float64(0),
 			OptString:  proto.String(""),
 			OptBytes:   []byte{},
-			OptEnum:    pb3.Enum_ZERO.Enum(),
+			OptEnum:    pb3.Enum_ENUM_ZERO.Enum(),
 			OptMessage: &pb3.Nested{},
 		},
 		want: `{
@@ -113,7 +113,7 @@ func TestMarshal(t *testing.T) {
   "optDouble": 0,
   "optString": "",
   "optBytes": "",
-  "optEnum": "ZERO",
+  "optEnum": "ENUM_ZERO",
   "optMessage": {}
 }`,
 	}, {
@@ -261,15 +261,26 @@ func TestMarshal(t *testing.T) {
 	}, {
 		desc: "proto3 enum set to zero value",
 		input: &pb3.Enums{
-			SEnum:       pb3.Enum_ZERO,
-			SNestedEnum: pb3.Enums_CERO,
+			SEnum:       pb3.Enum_ENUM_ZERO,
+			SNestedEnum: pb3.Enums_NESTED_CERO,
 		},
 		want: "{}",
 	}, {
 		desc: "proto3 enum",
 		input: &pb3.Enums{
-			SEnum:       pb3.Enum_ONE,
-			SNestedEnum: pb3.Enums_UNO,
+			SEnum:       pb3.Enum_ENUM_ONE,
+			SNestedEnum: pb3.Enums_NESTED_UNO,
+		},
+		want: `{
+  "sEnum": "ENUM_ONE",
+  "sNestedEnum": "NESTED_UNO"
+}`,
+	}, {
+		desc: "StripEnumPrefixes: proto3 enum",
+		mo:  protojson.MarshalOptions{StripEnumPrefixes: true},
+		input: &pb3.Enums{
+			SEnum:       pb3.Enum_ENUM_ONE,
+			SNestedEnum: pb3.Enums_NESTED_UNO,
 		},
 		want: `{
   "sEnum": "ONE",
@@ -277,6 +288,17 @@ func TestMarshal(t *testing.T) {
 }`,
 	}, {
 		desc: "proto3 enum set to numeric values",
+		input: &pb3.Enums{
+			SEnum:       2,
+			SNestedEnum: 2,
+		},
+		want: `{
+  "sEnum": "ENUM_TWO",
+  "sNestedEnum": "NESTED_DOS"
+}`,
+	}, {
+		desc: "StripEnumPrefixes: proto3 enum set to numeric values",
+		mo:  protojson.MarshalOptions{StripEnumPrefixes: true},
 		input: &pb3.Enums{
 			SEnum:       2,
 			SNestedEnum: 2,
@@ -407,11 +429,11 @@ func TestMarshal(t *testing.T) {
 		desc: "oneof set to enum",
 		input: &pb3.Oneofs{
 			Union: &pb3.Oneofs_OneofEnum{
-				OneofEnum: pb3.Enum_ZERO,
+				OneofEnum: pb3.Enum_ENUM_ZERO,
 			},
 		},
 		want: `{
-  "oneofEnum": "ZERO"
+  "oneofEnum": "ENUM_ZERO"
 }`,
 	}, {
 		desc: "oneof set to empty message",
@@ -653,17 +675,17 @@ func TestMarshal(t *testing.T) {
 		desc: "map fields 3",
 		input: &pb3.Maps{
 			Uint64ToEnum: map[uint64]pb3.Enum{
-				1:  pb3.Enum_ONE,
-				2:  pb3.Enum_TWO,
-				10: pb3.Enum_TEN,
+				1:  pb3.Enum_ENUM_ONE,
+				2:  pb3.Enum_ENUM_TWO,
+				10: pb3.Enum_ENUM_TEN,
 				47: 47,
 			},
 		},
 		want: `{
   "uint64ToEnum": {
-    "1": "ONE",
-    "2": "TWO",
-    "10": "TEN",
+    "1": "ENUM_ONE",
+    "2": "ENUM_TWO",
+    "10": "ENUM_TEN",
     "47": 47
   }
 }`,
@@ -1989,6 +2011,14 @@ func TestMarshal(t *testing.T) {
 		mo:    protojson.MarshalOptions{EmitUnpopulated: true},
 		input: &pb3.Enums{},
 		want: `{
+  "sEnum": "ENUM_ZERO",
+  "sNestedEnum": "NESTED_CERO"
+}`,
+	}, {
+		desc:  "EmitUnpopulated and StripEnumPrefixes: proto3 enum",
+		mo:    protojson.MarshalOptions{EmitUnpopulated: true, StripEnumPrefixes: true},
+		input: &pb3.Enums{},
+		want: `{
   "sEnum": "ZERO",
   "sNestedEnum": "CERO"
 }`,
@@ -2253,6 +2283,14 @@ func TestMarshal(t *testing.T) {
 		mo:    protojson.MarshalOptions{EmitDefaultValues: true},
 		input: &pb3.Enums{},
 		want: `{
+  "sEnum": "ENUM_ZERO",
+  "sNestedEnum": "NESTED_CERO"
+}`,
+	}, {
+		desc:  "EmitDefaultValues and StripEnumPrefixes: proto3 enum",
+		mo:    protojson.MarshalOptions{EmitDefaultValues: true, StripEnumPrefixes: true},
+		input: &pb3.Enums{},
+		want: `{
   "sEnum": "ZERO",
   "sNestedEnum": "CERO"
 }`,
@@ -2445,9 +2483,9 @@ func TestMarshal(t *testing.T) {
 		mo:   protojson.MarshalOptions{UseEnumNumbers: true},
 		input: &pb3.Maps{
 			Uint64ToEnum: map[uint64]pb3.Enum{
-				1:  pb3.Enum_ONE,
-				2:  pb3.Enum_TWO,
-				10: pb3.Enum_TEN,
+				1:  pb3.Enum_ENUM_ONE,
+				2:  pb3.Enum_ENUM_TWO,
+				10: pb3.Enum_ENUM_TEN,
 				47: 47,
 			},
 		},
